@@ -53,7 +53,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9100"
+      - "9090:9090"
     networks:
       - royal-net
 
