@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Royal Clinic</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Patient Booking</h1>
+            <a href="index.html" class="back-link">Back to Home</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="booking-wrapper">
+            <div id="doctor-summary" class="doctor-summary">
+                <!-- Selected Doctor Info -->
+            </div>
+
+            <form id="booking-form">
+                <div class="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Place</label>
+                    <input type="text" id="place" required>
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="age" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" required>
+                </div>
+                <div class="form-group">
+                    <label>Appointment Date</label>
+                    <input type="date" id="appt-date" required>
+                    <small id="date-hint">Please check doctor availability.</small>
+                </div>
+
+                <button type="submit" id="submit-btn">Confirm Booking</button>
+            </form>
+
+            <div id="result" class="hidden result-box">
+                <h3>Booking Successful!</h3>
+                <p>Your Token: <span id="token-display"></span></p>
+                <div id="pdf-container"></div>
+                <button onclick="window.location.reload()">Book Another</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const docName = urlParams.get('doctor');
+        let selectedDoc = null;
+
+        if (!docName) window.location.href = 'index.html';
+
+        async function init() {
+            const res = await fetch('/api/doctors');
+            const doctors = await res.json();
+            selectedDoc = doctors.find(d => d.name === docName);
+
+            if (selectedDoc) {
+                document.getElementById('doctor-summary').innerHTML = `
+                    <h3>Booking for: ${selectedDoc.name}</h3>
+                    <p>${selectedDoc.specialty}</p>
+                    <p class="time">${selectedDoc.time}</p>
+                `;
+            }
+        }
+
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+
+            const payload = {
+                doctor_name: docName,
+                patient_name: document.getElementById('name').value,
+                place: document.getElementById('place').value,
+                age: document.getElementById('age').value,
+                phone: document.getElementById('phone').value,
+                dob: document.getElementById('dob').value,
+                date: document.getElementById('appt-date').value
+            };
+
+            try {
+                const res = await fetch('/api/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('booking-form').classList.add('hidden');
+                    const result = document.getElementById('result');
+                    result.classList.remove('hidden');
+                    document.getElementById('token-display').textContent = data.token_number;
+
+                    const dlBtn = document.createElement('a');
+                    dlBtn.href = `/api/download-pdf/${data.booking_id}`;
+                    dlBtn.className = 'download-btn';
+                    dlBtn.textContent = "Download Receipt (PDF)";
+                    document.getElementById('pdf-container').appendChild(dlBtn);
+                } else {
+                    alert('Error: ' + data.error);
+                    btn.disabled = false;
+                    btn.textContent = "Confirm Booking";
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network Error");
+                btn.disabled = false;
+            }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

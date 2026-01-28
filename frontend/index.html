@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Clinic - Kuttippuram</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Royal Clinic</h1>
+            <p>Kuttippuram</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title">Our Specialists</h2>
+        <div id="doctors-grid" class="doctors-grid">
+            <!-- Dr. Riyas -->
+            <div class="doctor-card">
+                <img src="https://ui-avatars.com/api/?name=Dr.+Riyas&background=0D8ABC&color=fff&size=128"
+                    alt="Dr. Riyas" class="doc-img">
+                <h3>Dr. Riyas</h3>
+                <span class="badge">Ortho</span>
+                <div class="info">
+                    <p><strong>OP Time:</strong><br>10:00 AM - 01:00 PM</p>
+                    <p class="days">Available: Mon - Fri</p>
+                </div>
+                <button onclick="bookAppt('Dr. Riyas')">Book Appointment</button>
+            </div>
+
+            <!-- Dr. Joseph -->
+            <div class="doctor-card">
+                <img src="https://ui-avatars.com/api/?name=Dr.+Joseph&background=0D8ABC&color=fff&size=128"
+                    alt="Dr. Joseph" class="doc-img">
+                <h3>Dr. Joseph</h3>
+                <span class="badge">Skin</span>
+                <div class="info">
+                    <p><strong>OP Time:</strong><br>03:00 PM - 07:00 PM</p>
+                    <p class="days">Available: Wed - Sat</p>
+                </div>
+                <button onclick="bookAppt('Dr. Joseph')">Book Appointment</button>
+            </div>
+
+            <!-- Dr. Prakash -->
+            <div class="doctor-card">
+                <img src="https://ui-avatars.com/api/?name=Dr.+Prakash&background=0D8ABC&color=fff&size=128"
+                    alt="Dr. Prakash" class="doc-img">
+                <h3>Dr. Prakash</h3>
+                <span class="badge">General</span>
+                <div class="info">
+                    <p><strong>OP Time:</strong><br>01:00 PM - 08:00 PM</p>
+                    <p class="days">Available: Mon - Sat</p>
+                </div>
+                <button onclick="bookAppt('Dr. Prakash')">Book Appointment</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Royal Clinic. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function bookAppt(name) {
+            window.location.href = `booking.html?doctor=${encodeURIComponent(name)}`;
+        }
+    </script>
+</body>
+
+</html>

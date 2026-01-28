@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Python Backend API (Replicated for Load Balancing)
+  backend:
+    build: ./backend
+    deploy:
+      replicas: 2
+    environment:
+      - DB_HOST=db
+      - DB_NAME=royal_clinic
+      - DB_USER=postgres
+      - DB_PASS=password
+    depends_on:
+      - db
+    networks:
+      - royal-net
+
+  # Frontend Nginx Server
+  frontend:
+    build: ./frontend
+    networks:
+      - royal-net
+
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - royal-net
+
+  # Database (RDS Simulation)
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: royal_clinic
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - royal-net
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - royal-net
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - royal-net
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    networks:
+      - royal-net
+
+  cadvisor:
+    image: google/cadvisor:latest
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - royal-net
+
+  # CI/CD
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - royal-net
+
+networks:
+  royal-net:
+
+volumes:
+  db_data:
+  jenkins_home:
